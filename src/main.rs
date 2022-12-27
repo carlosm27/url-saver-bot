@@ -1,4 +1,5 @@
 use teloxide::{dispatching::update_listeners::webhooks, prelude::*, utils::command::BotCommands};
+use url::Url;
 
 #[tokio::main]
 async fn main() {
@@ -8,8 +9,8 @@ async fn main() {
     let bot = Bot::from_env();
 
     let addr = ([127, 0, 0, 1], 8000).into();
-    let url = "Your HTTPS ngrok URL here. Get it by `ngrok http 8000`".parse().unwrap();
-    let listener = webhooks::axum(bot.clone(), webhooks::Options::new(addr, url))
+    let ngrok_url = "https://788a-186-185-126-75.ngrok.io".parse().unwrap();
+    let listener = webhooks::axum(bot.clone(), webhooks::Options::new(addr, ngrok_url))
         .await
         .expect("Couldn't setup webhook");
 
@@ -39,9 +40,17 @@ async fn answer(bot: Bot, msg: Message, cmd: Command) -> ResponseResult<()> {
             bot.send_message(msg.chat.id, format!("Your chat ID is {chat_id}")).await?
         }
         Command::Url(url) => {
-            bot.send_message(msg.chat.id, format!("The URL you want to short is: {url}")).await?
+            bot.send_message(msg.chat.id, shorten(url).to_string()).await?
         }
     };
 
     Ok(())
+}
+
+fn shorten(url: String) -> String {
+    let id = &nanoid::nanoid!(6);
+    
+    let parsed_url = Url::parse(&url);
+    
+    format!("https://{id}")
 }
