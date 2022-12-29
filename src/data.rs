@@ -3,10 +3,10 @@ use once_cell::sync::Lazy;
 use std::sync::Mutex;
 use std::collections::HashMap;
 
-use serde::{Deserialize, Serialize};
+
 //use serde_json::json;
 
-#[derive(Debug,Clone, Eq, Hash, PartialEq,Serialize,Deserialize)]
+#[derive(Debug,Clone, Eq, Hash, PartialEq)]
 pub struct StoredURL {
     pub id: String,
     pub https_address: String,
