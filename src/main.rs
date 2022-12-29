@@ -1,31 +1,48 @@
 use teloxide::{dispatching::update_listeners::webhooks, prelude::*, utils::command::BotCommands};
-use url::Url;
+
+
+mod data;
+use crate::data::{DATA, StoredURL};
+
+mod server;
+
 
 #[tokio::main]
 async fn main() {
+    
+
+    start_bot().await;
+
+}
+
+async fn start_bot() {
+    
     pretty_env_logger::init();
     log::info!("Starting command bot...");
+    
 
     let bot = Bot::from_env();
 
     let addr = ([127, 0, 0, 1], 8000).into();
-    let ngrok_url = "https://788a-186-185-126-75.ngrok.io".parse().unwrap();
+    let ngrok_url = "https://5c05-186-185-84-158.ngrok.io".parse().unwrap();
     let listener = webhooks::axum(bot.clone(), webhooks::Options::new(addr, ngrok_url))
         .await
         .expect("Couldn't setup webhook");
 
 
     Command::repl_with_listener(bot, answer, listener).await;
-
 }
+
 
 #[derive(BotCommands, Clone)]
 #[command(rename_rule = "lowercase", description = "These commands are supported:")]
 enum Command {
     #[command(description = "display this text.")]
     Help,
-    #[command(description = "Use this command to short a URL")]
-    Url(String),
+    #[command(description = "Use this command to save a URL")]
+    Save(String),
+    #[command(description = "Use this command to retrieve a URL with its ID")]
+    Get(String),
     #[command(description = "handle user's chat ID")]
     ChatId,
     
@@ -39,18 +56,49 @@ async fn answer(bot: Bot, msg: Message, cmd: Command) -> ResponseResult<()> {
         Command::ChatId => {
             bot.send_message(msg.chat.id, format!("Your chat ID is {chat_id}")).await?
         }
-        Command::Url(url) => {
-            bot.send_message(msg.chat.id, shorten(url).to_string()).await?
+        Command::Save(text) => {
+            bot.send_message(msg.chat.id, save_url(text)).await?
+        }
+        Command::Get(text) => {
+            bot.send_message(msg.chat.id, get_url(text)).await?
         }
     };
 
     Ok(())
 }
 
-fn shorten(url: String) -> String {
-    let id = &nanoid::nanoid!(6);
+fn save_url(url: String) -> String {
+    let new_id = &nanoid::nanoid!(6).to_string();
     
-    let parsed_url = Url::parse(&url);
+    //let parsed_url = Url::parse(&url);
     
-    format!("https://{id}")
+    let new_url= StoredURL{id:new_id.clone(), https_address:url};
+    
+    println!("{}", &new_id);
+    println!("{}",&new_url);
+    
+    let mut data = DATA.lock().unwrap();
+    
+    
+    data.insert(new_url.id.clone(), new_url.clone());
+            
+    format!("URL saved, the ID is {}", new_id)
+    
+  
 }
+
+pub fn get_url(id:String) -> String {
+    
+    
+    let data = DATA.lock().unwrap();
+    
+    let url = data.get(&id);
+     
+     format!("{:?}", url)
+     
+    
+}    
+    
+    
+ 
+    
