@@ -1,2 +1,2 @@
-# url_shortener_bot
-A telegram bot to short urls using Teloxide
+# url_saver_bot
+A telegram bot to save urls using Teloxide.
