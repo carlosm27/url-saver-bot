@@ -4,7 +4,6 @@ use teloxide::{dispatching::update_listeners::webhooks, prelude::*, utils::comma
 mod data;
 use crate::data::{DATA, StoredURL};
 
-mod server;
 
 
 #[tokio::main]
@@ -24,7 +23,7 @@ async fn start_bot() {
     let bot = Bot::from_env();
 
     let addr = ([127, 0, 0, 1], 8000).into();
-    let ngrok_url = "https://5c05-186-185-84-158.ngrok.io".parse().unwrap();
+    let ngrok_url = "".parse().unwrap();
     let listener = webhooks::axum(bot.clone(), webhooks::Options::new(addr, ngrok_url))
         .await
         .expect("Couldn't setup webhook");
@@ -73,9 +72,7 @@ fn save_url(url: String) -> String {
     //let parsed_url = Url::parse(&url);
     
     let new_url= StoredURL{id:new_id.clone(), https_address:url};
-    
-    println!("{}", &new_id);
-    println!("{}",&new_url);
+
     
     let mut data = DATA.lock().unwrap();
     
@@ -92,9 +89,14 @@ pub fn get_url(id:String) -> String {
     
     let data = DATA.lock().unwrap();
     
-    let url = data.get(&id);
-     
-     format!("{:?}", url)
+    
+    match data.get(&id) {
+        Some(value) => format!("{}",value.https_address.to_string()),
+        None => format!("There is not URL with this ID")
+    
+}
+    
+    
      
     
 }    
