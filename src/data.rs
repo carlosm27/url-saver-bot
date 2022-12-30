@@ -18,7 +18,7 @@ impl std::fmt::Display for StoredURL {
     }
 }
 
-pub static DATA: Lazy<Mutex<HashMap<String, StoredURL>>> = Lazy::new(|| Mutex::new(
+pub static DATA: Lazy<Mutex<HashMap<String, String>>> = Lazy::new(|| Mutex::new(
     HashMap::from([
         
     ])
