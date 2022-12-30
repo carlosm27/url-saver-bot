@@ -23,7 +23,7 @@ async fn start_bot() {
     let bot = Bot::from_env();
 
     let addr = ([127, 0, 0, 1], 8000).into();
-    let ngrok_url = "https://8106-186-185-27-89.ngrok.io".parse().unwrap();
+    let ngrok_url = "".parse().unwrap();
     let listener = webhooks::axum(bot.clone(), webhooks::Options::new(addr, ngrok_url))
         .await
         .expect("Couldn't setup webhook");
