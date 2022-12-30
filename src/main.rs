@@ -23,7 +23,7 @@ async fn start_bot() {
     let bot = Bot::from_env();
 
     let addr = ([127, 0, 0, 1], 8000).into();
-    let ngrok_url = "".parse().unwrap();
+    let ngrok_url = "https://8106-186-185-27-89.ngrok.io".parse().unwrap();
     let listener = webhooks::axum(bot.clone(), webhooks::Options::new(addr, ngrok_url))
         .await
         .expect("Couldn't setup webhook");
@@ -67,9 +67,7 @@ async fn answer(bot: Bot, msg: Message, cmd: Command) -> ResponseResult<()> {
 }
 
 fn save_url(url: String) -> String {
-    let new_id = &nanoid::nanoid!(6).to_string();
-    
-    //let parsed_url = Url::parse(&url);
+    let new_id = &nanoid::nanoid!(6).to_string();  
     
     let new_url= StoredURL{id:new_id.clone(), https_address:url};
 
@@ -77,7 +75,7 @@ fn save_url(url: String) -> String {
     let mut data = DATA.lock().unwrap();
     
     
-    data.insert(new_url.id.clone(), new_url.clone());
+    data.insert(new_url.id, new_url.https_address);
             
     format!("URL saved, the ID is {}", new_id)
     
@@ -91,7 +89,7 @@ pub fn get_url(id:String) -> String {
     
     
     match data.get(&id) {
-        Some(value) => format!("{}",value.https_address.to_string()),
+        Some(value) => format!("{}",value.to_string()),
         None => format!("There is not URL with this ID")
     
 }
