@@ -1,2 +1,2 @@
-# url_saver_bot
+# url-saver-bot
 A telegram bot to save urls using Teloxide.
